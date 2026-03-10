@@ -20,6 +20,7 @@ import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.app.Activity;
 import android.app.settings.SettingsEnums;
+import android.content.ComponentName; // Added
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
@@ -27,10 +28,12 @@ import android.os.Bundle;
 import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast; // Added
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.Preference; // Added
 import androidx.preference.PreferenceScreen;
 
 import com.android.settings.R;
@@ -82,6 +85,7 @@ public class MyDeviceInfoFragment extends DashboardFragment
     private static final String LOG_TAG = "MyDeviceInfoFragment";
     private static final String KEY_EID_INFO = "eid_info";
     private static final String KEY_MY_DEVICE_INFO_HEADER = "my_device_info_header";
+    private static final String KEY_CIT_TEST = "cit_test"; // Added
 
     private final BroadcastReceiver mSimStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -252,6 +256,23 @@ public class MyDeviceInfoFragment extends DashboardFragment
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(Preference preference) {
+        if (KEY_CIT_TEST.equals(preference.getKey())) {
+            try {
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName("com.miui.cit", "com.miui.cit.home.HomeActivity"));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Unable to start CIT activity", e);
+                Toast.makeText(getContext(), "Xiaomi CIT app not found", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
+        return super.onPreferenceTreeClick(preference);
     }
 
     private void initHeader() {
